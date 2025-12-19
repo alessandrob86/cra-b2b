@@ -3,11 +3,15 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TermsModal } from '../ui/TermsModal';
 
 export function ContactForm() {
     const [companyName, setCompanyName] = useState('');
     const [email, setEmail] = useState('');
     const [confirmEmail, setConfirmEmail] = useState('');
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
+
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'already_submitted'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -71,6 +75,12 @@ export function ContactForm() {
             return;
         }
 
+        if (!acceptedTerms) {
+            setStatus('error');
+            setErrorMessage('Devi accettare i termini e le condizioni');
+            return;
+        }
+
         setStatus('loading');
 
         try {
@@ -87,6 +97,7 @@ export function ContactForm() {
             setEmail('');
             setConfirmEmail('');
             setCompanyName('');
+            setAcceptedTerms(false);
             localStorage.setItem('nomad_form_submitted', 'true');
 
         } catch (err) {
@@ -119,6 +130,8 @@ export function ContactForm() {
 
     return (
         <section id="activation-form" className="py-24 px-4 bg-bg-card border-t border-slate-800">
+            <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
+
             <div className="max-w-xl mx-auto text-center">
                 <div className="mb-12 space-y-6">
                     <h2 className="text-4xl md:text-5xl font-bold text-white">
@@ -247,6 +260,25 @@ export function ContactForm() {
                                                 className="pl-4 pr-10"
                                             />
                                         </div>
+                                    </div>
+
+                                    {/* Terms Checkbox */}
+                                    <div className="flex items-start gap-3 pt-2">
+                                        <div className="flex items-center h-5">
+                                            <input
+                                                id="terms"
+                                                type="checkbox"
+                                                checked={acceptedTerms}
+                                                onChange={(e) => {
+                                                    setAcceptedTerms(e.target.checked);
+                                                    if (status === 'error') setStatus('idle');
+                                                }}
+                                                className="w-4 h-4 rounded border-slate-600 bg-bg-card text-accent-primary focus:ring-accent-primary focus:ring-offset-bg-main"
+                                            />
+                                        </div>
+                                        <label htmlFor="terms" className="text-sm text-text-muted cursor-pointer select-none">
+                                            Ho letto e accetto i <button type="button" onClick={() => setShowTermsModal(true)} className="text-accent-primary hover:underline font-semibold tracking-wide">termini e condizioni di servizio</button>.
+                                        </label>
                                     </div>
 
                                     {status === 'error' && (
