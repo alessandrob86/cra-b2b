@@ -8,6 +8,7 @@ import { Promo } from './components/sections/Promo';
 import { WhatChanges } from './components/sections/WhatChanges';
 import { FadeIn } from './components/ui/FadeIn';
 import { StickyCTA } from './components/ui/StickyCTA';
+import { ScrollToTop } from './components/ui/ScrollToTop';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
       <Footer />
 
       <StickyCTA />
+      <ScrollToTop />
     </div>
   )
 }

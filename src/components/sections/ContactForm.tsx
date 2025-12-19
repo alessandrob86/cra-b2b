@@ -5,10 +5,37 @@ import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function ContactForm() {
+    const [companyName, setCompanyName] = useState('');
     const [email, setEmail] = useState('');
     const [confirmEmail, setConfirmEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'already_submitted'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
+
+    // Countdown Logic
+    const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+
+    useEffect(() => {
+        const targetDate = new Date('2025-12-31T23:59:59').getTime();
+
+        const interval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                clearInterval(interval);
+                setTimeLeft(null);
+            } else {
+                setTimeLeft({
+                    days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                    minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                    seconds: Math.floor((distance % (1000 * 60)) / 1000),
+                });
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const hasSubmitted = localStorage.getItem('nomad_form_submitted');
@@ -25,6 +52,12 @@ export function ContactForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!companyName.trim()) {
+            setStatus('error');
+            setErrorMessage('Il nome dell\'officina è obbligatorio');
+            return;
+        }
 
         if (!validateEmail(email)) {
             setStatus('error');
@@ -47,12 +80,13 @@ export function ContactForm() {
                 headers: {
                     'Content-Type': 'text/plain',
                 },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ email, companyName })
             });
 
             setStatus('success');
             setEmail('');
             setConfirmEmail('');
+            setCompanyName('');
             localStorage.setItem('nomad_form_submitted', 'true');
 
         } catch (err) {
@@ -86,17 +120,44 @@ export function ContactForm() {
     return (
         <section id="activation-form" className="py-24 px-4 bg-bg-card border-t border-slate-800">
             <div className="max-w-xl mx-auto text-center">
-                <div className="mb-8 space-y-4">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white">
-                        Attiva ora il nuovo e-commerce
+                <div className="mb-12 space-y-6">
+                    <h2 className="text-4xl md:text-5xl font-bold text-white">
+                        Attiva ora <span className="text-accent-primary">GRATIS</span>
                     </h2>
+
+                    {/* Countdown Box */}
+                    {timeLeft && (
+                        <div className="flex justify-center gap-4 py-4">
+                            {[
+                                { label: 'Giorni', value: timeLeft.days },
+                                { label: 'Ore', value: timeLeft.hours },
+                                { label: 'Minuti', value: timeLeft.minutes },
+                                { label: 'Secondi', value: timeLeft.seconds }
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex flex-col items-center p-3 bg-bg-main border border-slate-700 rounded-lg min-w-[70px]">
+                                    <span className="text-2xl font-bold text-white font-mono">{String(item.value).padStart(2, '0')}</span>
+                                    <span className="text-xs text-text-muted uppercase tracking-wider">{item.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl max-w-2xl mx-auto">
+                        <p className="text-emerald-400 font-semibold text-lg">
+                            Richiedi ora l'attivazione e per un anno hai tutto GRATIS!
+                        </p>
+                        <p className="text-emerald-500/80 text-sm mt-1">
+                            (Valore moduli ecommerce = 260€ + iva)
+                        </p>
+                    </div>
+
                     <p className="text-lg text-text-muted">
-                        Inserisci l’email con cui operi abitualmente. <br />
-                        Ti invieremo le istruzioni per completare l’attivazione.
+                        Inserisci i dati della tua officina. <br />
+                        Ti invieremo le istruzioni per completare l'attivazione.
                     </p>
                 </div>
 
-                <div className="bg-bg-main p-8 rounded-2xl border border-slate-700 shadow-xl">
+                <div className="bg-bg-main p-8 rounded-2xl border border-slate-700 shadow-xl max-w-xl mx-auto">
                     <AnimatePresence mode="wait">
                         {status === 'success' ? (
                             <motion.div
@@ -108,9 +169,9 @@ export function ContactForm() {
                                 <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center">
                                     <CheckCircle2 className="w-8 h-8" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white">Email ricevuta correttamente</h3>
+                                <h3 className="text-xl font-semibold text-white">Richiesta inviata!</h3>
                                 <p className="text-text-muted">
-                                    A breve riceverai le istruzioni per accedere al nuovo e-commerce e impostare la password.
+                                    A breve riceverai le istruzioni per accedere al nuovo e-commerce.
                                 </p>
                             </motion.div>
                         ) : (
@@ -123,8 +184,29 @@ export function ContactForm() {
                             >
                                 <div className="space-y-4">
                                     <div className="space-y-2">
+                                        <label htmlFor="companyName" className="text-sm font-medium text-text-muted">
+                                            Nome Officina <span className="text-accent-primary">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <Input
+                                                id="companyName"
+                                                type="text"
+                                                placeholder="Es. Officina Rossi snc"
+                                                value={companyName}
+                                                onChange={(e) => {
+                                                    setCompanyName(e.target.value);
+                                                    if (status === 'error') setStatus('idle');
+                                                }}
+                                                error={status === 'error' && !companyName.trim()}
+                                                disabled={status === 'loading'}
+                                                className="pl-4"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
                                         <label htmlFor="email" className="text-sm font-medium text-text-muted">
-                                            Email aziendale
+                                            Email aziendale <span className="text-accent-primary">*</span>
                                         </label>
                                         <div className="relative">
                                             <Input
@@ -136,11 +218,11 @@ export function ContactForm() {
                                                     setEmail(e.target.value);
                                                     if (status === 'error') setStatus('idle');
                                                 }}
-                                                error={status === 'error'}
+                                                error={status === 'error' && !validateEmail(email)}
                                                 disabled={status === 'loading'}
                                                 className="pl-4 pr-10"
                                             />
-                                            {status === 'error' && !errorMessage.includes('corrispondono') && (
+                                            {status === 'error' && !validateEmail(email) && email.length > 0 && (
                                                 <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 w-5 h-5" />
                                             )}
                                         </div>
@@ -148,7 +230,7 @@ export function ContactForm() {
 
                                     <div className="space-y-2">
                                         <label htmlFor="confirmEmail" className="text-sm font-medium text-text-muted">
-                                            Conferma Email
+                                            Conferma Email <span className="text-accent-primary">*</span>
                                         </label>
                                         <div className="relative">
                                             <Input
@@ -160,7 +242,7 @@ export function ContactForm() {
                                                     setConfirmEmail(e.target.value);
                                                     if (status === 'error') setStatus('idle');
                                                 }}
-                                                error={status === 'error'}
+                                                error={status === 'error' && email !== confirmEmail}
                                                 disabled={status === 'loading'}
                                                 className="pl-4 pr-10"
                                             />
@@ -176,21 +258,21 @@ export function ContactForm() {
 
                                 <Button
                                     type="submit"
-                                    className="w-full text-lg h-12"
+                                    className="w-full text-lg h-14 bg-accent-primary text-bg-main hover:bg-yellow-400 font-bold shadow-lg shadow-accent-primary/20"
                                     disabled={status === 'loading'}
                                 >
                                     {status === 'loading' ? (
                                         <span className="flex items-center gap-2">
-                                            <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                            <span className="w-4 h-4 border-2 border-bg-main/20 border-t-bg-main rounded-full animate-spin" />
                                             Elaborazione...
                                         </span>
                                     ) : (
-                                        'Richiedi attivazione'
+                                        'RICHIEDI ATTIVAZIONE ORA'
                                     )}
                                 </Button>
 
                                 <p className="text-xs text-center text-text-muted pt-2">
-                                    Riservato ai clienti con Partita IVA attiva.
+                                    Offerta valida fino al 31/12/2025.
                                 </p>
                             </motion.form>
                         )}

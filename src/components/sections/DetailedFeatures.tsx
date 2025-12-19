@@ -94,8 +94,6 @@ export function DetailedFeatures() {
                 description="Non perdere tempo a cercare codici. Inserisci la targa o il telaio e accedi immediatamente all'esploso tecnico del veicolo, con filtri precisi per motorizzazione e allestimento. La nostra banca dati è aggiornata in tempo reale per garantirti zero errori."
                 imageSrc="/feature-search.png"
                 imageAlt="Ricerca ricambi per targa su tablet"
-                badge="GRATIS A VITA"
-                badgeColor="green"
                 note="Paghi solo il costo della consultazione"
             />
 

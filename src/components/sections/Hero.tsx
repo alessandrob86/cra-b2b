@@ -25,8 +25,8 @@ export function Hero() {
             >
                 <img src="/logo-1.png" alt="Logo" className="h-32 w-auto mb-8 drop-shadow-2xl" />
 
-                <Badge variant="danger" className="animate-pulse px-4 py-1 text-sm bg-accent-secondary/20 text-accent-secondary border-accent-secondary/50">
-                    ATTIVAZIONE OBBLIGATORIA ENTRO IL 31/12
+                <Badge variant="danger" className="animate-pulse px-6 py-2 text-lg md:text-xl font-black bg-red-600/20 text-red-500 border-red-500/50 uppercase tracking-widest shadow-[0_0_30px_rgba(220,38,38,0.5)]">
+                    ⚠️ ATTIVAZIONE OBBLIGATORIA ENTRO IL 31/12 ⚠️
                 </Badge>
 
                 <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-white max-w-4xl leading-tight">
