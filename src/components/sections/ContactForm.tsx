@@ -48,7 +48,7 @@ export function ContactForm() {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     };
 
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaWBN3mnszB9YpfNfaoiD2x30uYcNzZDtCNCUm7CEjl2bt1W0j0iEy_VrSFrQ5zodx/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZYwrgS5sW7GwMQHyLRctx7XoJ5qntds_nSsHwdGTx869cXkTvuw_HJM8k1FSReOsX/exec';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
