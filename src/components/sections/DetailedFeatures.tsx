@@ -111,7 +111,7 @@ export function DetailedFeatures() {
             />
 
             <FeatureSection
-                title="Dati Tecnici e Schemi 3D"
+                title="Dati Tecnici e Piani di Manutenzione"
                 description="Accedi a schemi di montaggio, coppie di serraggio, specifiche dei fluidi e bollettini tecnici ufficiali. Un vero e proprio assistente tecnico digitale integrato nel tuo carrello acquisti."
                 imageSrc="/feature-tech.png"
                 imageAlt="Meccanico che consulta schemi tecnici olografici"
