@@ -165,9 +165,9 @@ export function ContactForm() {
                                         <Zap className="w-12 h-12 fill-current" />
                                     </div>
                                     <div className="text-center space-y-2">
-                                        <h3 className="text-3xl font-bold text-white tracking-widest uppercase">Accesso Autorizzato</h3>
+                                        <h3 className="text-3xl font-bold text-white tracking-widest uppercase">ACCESSO RISERVATO</h3>
                                         <p className="text-text-muted font-mono">
-                                            Credenziali di accesso in invio al terminale remoto.
+                                            Credenziali di accesso in elaborazione, le verranno inviate per email.
                                         </p>
                                     </div>
                                 </motion.div>
