@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 
 export const BackgroundBeams = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,7 +17,6 @@ export const BackgroundBeams = () => {
         // Configuration
         const STAR_COUNT = 400;
         const SPEED = 2; // Warp speed
-        const ACCELERATION = 0.05;
 
         class Star {
             x: number;
