@@ -47,7 +47,7 @@ export function TermsModal({ isOpen, onClose }: TermsModalProps) {
                                 </p>
                                 <p>
                                     <strong>2. Costi e Promozioni</strong><br />
-                                    La registrazione entro il 31/12/2025 garantisce l'attivazione gratuita dei moduli "Ricerca per Targa" e "Multicarrello" per 1 anno. Al termine del periodo promozionale, il servizio potrebbe essere soggetto a canone, previa comunicazione.
+                                    La registrazione garantisce l'attivazione gratuita dei moduli "Ricerca per Targa" e "Multicarrello" per 1 anno. Al termine del periodo promozionale, il servizio potrebbe essere soggetto a canone, previa comunicazione.
                                 </p>
                                 <p>
                                     <strong>3. Privacy e Trattamento Dati (GDPR)</strong><br />
