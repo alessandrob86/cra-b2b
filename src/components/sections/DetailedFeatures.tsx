@@ -1,7 +1,8 @@
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BackgroundGrid } from '../ui/BackgroundGrid';
-import { Search, ShoppingCart, Activity, FileText } from 'lucide-react';
+import { Search, ShoppingCart, Activity, FileText, ChevronDown, Check, ShieldCheck } from 'lucide-react';
 
 interface FeatureSectionProps {
     title: string;
@@ -12,9 +13,12 @@ interface FeatureSectionProps {
     price?: string;
     note?: string;
     visual: React.ReactNode;
+    pricingContent?: React.ReactNode;
 }
 
-function FeatureSection({ title, description, reversed = false, badge, badgeColor, price, note, visual }: FeatureSectionProps) {
+function FeatureSection({ title, description, reversed = false, badge, badgeColor, price, note, visual, pricingContent }: FeatureSectionProps) {
+    const [isPricingOpen, setIsPricingOpen] = useState(false);
+
     return (
         <div className={`flex flex-col ${reversed ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-12 lg:gap-20 py-24 relative z-10`}>
             {/* Visual Side */}
@@ -68,9 +72,40 @@ function FeatureSection({ title, description, reversed = false, badge, badgeColo
                 </p>
 
                 {note && (
-                    <div className="pt-2 flex items-center justify-center lg:justify-start gap-2 text-sm text-text-muted/80">
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent-primary" />
-                        <span>{note}</span>
+                    <div className="pt-2 relative">
+                        {pricingContent ? (
+                            <div className="flex flex-col items-center lg:items-start">
+                                <button
+                                    onClick={() => setIsPricingOpen(!isPricingOpen)}
+                                    className="flex items-center gap-2 text-sm text-accent-primary/90 hover:text-accent-primary font-medium transition-colors bg-accent-primary/5 hover:bg-accent-primary/10 px-4 py-2 rounded-full border border-accent-primary/20 group"
+                                >
+                                    <div className="w-1.5 h-1.5 rounded-full bg-accent-primary group-hover:animate-ping" />
+                                    <span>{note}</span>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isPricingOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                <AnimatePresence>
+                                    {isPricingOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10, height: 0 }}
+                                            animate={{ opacity: 1, y: 0, height: 'auto' }}
+                                            exit={{ opacity: 0, y: -10, height: 0 }}
+                                            className="overflow-hidden mt-4 w-full max-w-md"
+                                        >
+                                            <div className="bg-bg-card/90 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl relative overflow-hidden">
+                                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-primary to-transparent" />
+                                                {pricingContent}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center lg:justify-start gap-2 text-sm text-text-muted/80">
+                                <div className="w-1.5 h-1.5 rounded-full bg-accent-primary" />
+                                <span>{note}</span>
+                            </div>
+                        )}
                     </div>
                 )}
             </motion.div>
@@ -128,6 +163,45 @@ export function DetailedFeatures() {
                         </div>
                     }
                     note="Paghi solo il costo della consultazione"
+                    pricingContent={
+                        <div className="space-y-4">
+                            {/* Targhe */}
+                            <div className="flex items-start gap-4">
+                                <div className="mt-1 w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shrink-0">
+                                    <Check className="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <div className="flex items-baseline gap-2 mb-1">
+                                        <span className="text-white font-bold text-lg">Ricerca Targa</span>
+                                        <span className="text-emerald-400 font-mono font-bold">0,25€</span>
+                                    </div>
+                                    <p className="text-xs text-text-muted leading-relaxed">
+                                        <span className="text-emerald-500 font-bold uppercase tracking-wider text-[10px]">Omaggio</span><br />
+                                        100 ricerche incluse alla prima attivazione
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="h-px bg-white/5 w-full" />
+
+                            {/* Telai */}
+                            <div className="flex items-start gap-4">
+                                <div className="mt-1 w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20 shrink-0">
+                                    <ShieldCheck className="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <div className="flex items-baseline gap-2 mb-1">
+                                        <span className="text-white font-bold text-lg">Ricerca Telaio</span>
+                                        <span className="text-amber-400 font-mono font-bold">1,50€</span>
+                                    </div>
+                                    <p className="text-xs text-text-muted leading-relaxed">
+                                        <span className="text-amber-500 font-bold uppercase tracking-wider text-[10px]">Alta Affidabilità</span><br />
+                                        90/95% di precisione sui risultati ufficiali
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 />
 
                 {/* Feature 2: Multicart */}
