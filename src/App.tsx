@@ -1,4 +1,4 @@
-import { Alert } from './components/sections/Alert';
+
 import { ContactForm } from './components/sections/ContactForm';
 import { DetailedFeatures } from './components/sections/DetailedFeatures';
 import { Features } from './components/sections/Features'; // Keeping old grid for minor features
@@ -15,9 +15,8 @@ function App() {
     <div className="min-h-screen bg-bg-main text-text-main font-sans selection:bg-accent-primary/30">
       <Hero />
 
-      <FadeIn delay={0.1}>
-        <Alert />
-      </FadeIn>
+      {/* Alert removed as per redesign */}
+
 
       <FadeIn delay={0.2}>
         <WhatChanges />

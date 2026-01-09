@@ -15,31 +15,7 @@ export function ContactForm() {
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'already_submitted'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
 
-    // Countdown Logic
-    const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
 
-    useEffect(() => {
-        const targetDate = new Date('2025-12-31T23:59:59').getTime();
-
-        const interval = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-
-            if (distance < 0) {
-                clearInterval(interval);
-                setTimeLeft(null);
-            } else {
-                setTimeLeft({
-                    days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-                    hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                    minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-                    seconds: Math.floor((distance % (1000 * 60)) / 1000),
-                });
-            }
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         const hasSubmitted = localStorage.getItem('nomad_form_submitted');
@@ -139,21 +115,7 @@ export function ContactForm() {
                     </h2>
 
                     {/* Countdown Box */}
-                    {timeLeft && (
-                        <div className="flex justify-center gap-4 py-4">
-                            {[
-                                { label: 'Giorni', value: timeLeft.days },
-                                { label: 'Ore', value: timeLeft.hours },
-                                { label: 'Minuti', value: timeLeft.minutes },
-                                { label: 'Secondi', value: timeLeft.seconds }
-                            ].map((item, idx) => (
-                                <div key={idx} className="flex flex-col items-center p-3 bg-bg-main border border-slate-700 rounded-lg min-w-[70px]">
-                                    <span className="text-2xl font-bold text-white font-mono">{String(item.value).padStart(2, '0')}</span>
-                                    <span className="text-xs text-text-muted uppercase tracking-wider">{item.label}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+
 
                     <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl max-w-2xl mx-auto">
                         <p className="text-emerald-400 font-semibold text-lg">
@@ -303,9 +265,7 @@ export function ContactForm() {
                                     )}
                                 </Button>
 
-                                <p className="text-xs text-center text-text-muted pt-2">
-                                    Offerta valida fino al 31/12/2025.
-                                </p>
+
                             </motion.form>
                         )}
                     </AnimatePresence>

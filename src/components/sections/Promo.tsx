@@ -76,7 +76,7 @@ export function Promo() {
                             Promo Esclusiva <span className="text-accent-primary">Business</span>
                         </h2>
                         <p className="text-xl text-indigo-200 max-w-2xl mx-auto font-light">
-                            Attiva il nuovo portale entro il <strong className="text-white font-semibold">31/12</strong> e accedi a vantaggi riservati.
+                            Accedi <strong className="text-white font-semibold">adesso</strong> e ricevi i vantaggi riservati.
                         </p>
                     </div>
 
@@ -122,7 +122,7 @@ export function Promo() {
 
                     <div className="mt-16 text-center">
                         <p className="text-sm font-medium text-white/40 tracking-widest uppercase">
-                            * Offerta valida solo per migrazione da vecchio portale
+                            * Offerta valida per le nuove attivazioni
                         </p>
                     </div>
                 </div>
