@@ -170,10 +170,13 @@ export function DetailedFeatures() {
                                 <div className="mt-1 w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shrink-0">
                                     <Check className="w-4 h-4" />
                                 </div>
-                                <div>
-                                    <div className="flex items-baseline gap-2 mb-1">
+                                <div className="flex-1">
+                                    <div className="flex items-baseline justify-between mb-1">
                                         <span className="text-white font-bold text-lg">Ricerca Targa</span>
-                                        <span className="text-emerald-400 font-mono font-bold">0,25€</span>
+                                        <div className="text-right">
+                                            <span className="text-emerald-400 font-mono font-bold block">0,25€</span>
+                                            <span className="text-[10px] text-text-muted uppercase">+iva</span>
+                                        </div>
                                     </div>
                                     <p className="text-xs text-text-muted leading-relaxed">
                                         <span className="text-emerald-500 font-bold uppercase tracking-wider text-[10px]">Omaggio</span><br />
@@ -189,10 +192,13 @@ export function DetailedFeatures() {
                                 <div className="mt-1 w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20 shrink-0">
                                     <ShieldCheck className="w-4 h-4" />
                                 </div>
-                                <div>
-                                    <div className="flex items-baseline gap-2 mb-1">
+                                <div className="flex-1">
+                                    <div className="flex items-baseline justify-between mb-1">
                                         <span className="text-white font-bold text-lg">Ricerca Telaio</span>
-                                        <span className="text-amber-400 font-mono font-bold">1,50€</span>
+                                        <div className="text-right">
+                                            <span className="text-amber-400 font-mono font-bold block">1,50€</span>
+                                            <span className="text-[10px] text-text-muted uppercase">+iva</span>
+                                        </div>
                                     </div>
                                     <p className="text-xs text-text-muted leading-relaxed">
                                         <span className="text-amber-500 font-bold uppercase tracking-wider text-[10px]">Alta Affidabilità</span><br />
