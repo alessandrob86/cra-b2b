@@ -11,5 +11,8 @@
       "destination": "/promo",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
