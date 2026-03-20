@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "registrazioni.centroricambiautosrl.it"
+        }
+      ],
+      "destination": "/promo",
+      "permanent": false
+    }
+  ]
+}
