@@ -29,7 +29,7 @@ export function ContactForm() {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     };
 
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZYwrgS5sW7GwMQHyLRctx7XoJ5qntds_nSsHwdGTx869cXkTvuw_HJM8k1FSReOsX/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZeGm6zPPQeHNhe84DuCJN-N66Ug7djkK6YjIS7aOGxSTGej5ptQoohnC7xGLDa_LH/exec';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -61,21 +61,27 @@ export function ContactForm() {
         setStatus('loading');
 
         try {
-            await fetch(GOOGLE_SCRIPT_URL, {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: {
-                    'Content-Type': 'text/plain',
+                    'Content-Type': 'text/plain;charset=utf-8',
                 },
-                body: JSON.stringify({ email, companyName })
+                body: JSON.stringify({ action: 'register', email, companyName })
             });
 
-            setStatus('success');
-            setEmail('');
-            setConfirmEmail('');
-            setCompanyName('');
-            setAcceptedTerms(false);
-            localStorage.setItem('nomad_form_submitted', 'true');
+            const data = await response.json();
+
+            if (data.result === 'success') {
+                setStatus('success');
+                setEmail('');
+                setConfirmEmail('');
+                setCompanyName('');
+                setAcceptedTerms(false);
+                localStorage.setItem('nomad_form_submitted', 'true');
+            } else {
+                setStatus('error');
+                setErrorMessage(data.message || 'Errore durante la registrazione.');
+            }
 
         } catch (err) {
             console.error(err);
