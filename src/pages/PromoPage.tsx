@@ -7,6 +7,7 @@ import { Zap, AlertCircle, ArrowRight, CheckCircle2, Download } from 'lucide-rea
 import { SignaturePad } from '../components/ui/SignaturePad';
 import type { SignaturePadRef } from '../components/ui/SignaturePad';
 import jsPDF from 'jspdf';
+import { supabase } from '../lib/supabase';
 
 export function PromoPage() {
     const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -29,7 +30,9 @@ export function PromoPage() {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
     };
 
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZeGm6zPPQeHNhe84DuCJN-N66Ug7djkK6YjIS7aOGxSTGej5ptQoohnC7xGLDa_LH/exec';
+    // Note: We keep GOOGLE_SCRIPT_URL for email lookup if needed, 
+    // but we use Supabase for persistent and secure storage.
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiYZiJoEZ4xagiDqlvN4LOhf19kFBoUsfJwF3kyBHrAxHnk4am_f-sjzQTVYijTtxf/exec';
 
     const handleEmailLookup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -84,38 +87,66 @@ export function PromoPage() {
 
         setStatus('loading');
 
-        const signatureData = signatureRef.current?.getTrimmedDataURL();
-        if (signatureData) {
-            setFinalSignature(signatureData); // Save for the PDF before the component unmounts
-        }
-
         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8',
-                },
-                body: JSON.stringify({ action: 'signPromo', email, turnover, signature: signatureData })
-            });
+            const signatureData = signatureRef.current?.getTrimmedDataURL();
+            if (!signatureData) throw new Error('Errore nella cattura della firma');
             
-            const data = await response.json();
+            setFinalSignature(signatureData); // Save for the PDF instance
 
-            if (data.success) {
-                setStatus('success');
-                setStep(4);
-            } else {
-                setStatus('error');
-                setErrorMessage(data.error || 'Errore durante l\'attivazione della promozione.');
+            // 1. Generate PDF document
+            const doc = getPDFDocument(signatureData);
+            const pdfBlob = doc.output('blob');
+            
+            // 2. Encrypt PDF (Optional, but highly recommended)
+            // For simplicity and to avoid large memory issues with encryption of binary blobs 
+            // in this specific demo, we'll store the PDF securely with Supabase RLS.
+            // However, we can still encrypt it if the user wants.
+            
+            // 3. Upload PDF to Supabase Storage
+            const fileName = `Contratto_${Date.now()}_${email.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            const { error: uploadError } = await supabase.storage
+                .from('signatures')
+                .upload(fileName, pdfBlob);
+
+            if (uploadError) throw uploadError;
+
+            // 4. Save Record to Database
+            const { error: dbError } = await supabase
+                .from('promo_activations')
+                .insert({
+                    email,
+                    officina_name: officinaName,
+                    turnover,
+                    contract_path: fileName
+                });
+
+            if (dbError) throw dbError;
+
+            // 5. Update Google Sheet status (Notification only, no sensitive data)
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8',
+                    },
+                    body: JSON.stringify({ action: 'signPromo', email })
+                });
+            } catch (googleError) {
+                console.warn('Google Sheet update failed, but Supabase record is safe.', googleError);
             }
-        } catch (error) {
+
+            setStatus('success');
+            setStep(4);
+        } catch (error: any) {
             setStatus('error');
-            setErrorMessage('Si è verificato un errore di connessione.');
+            setErrorMessage(`Errore durante l'attivazione: ${error.message || 'di connessione'}`);
             console.error(error);
         }
     };
 
-    const generatePDF = () => {
+    const getPDFDocument = (signatureToUse?: string) => {
         const doc = new jsPDF();
+        const sig = signatureToUse || finalSignature;
         
         // Background and Box
         doc.setFillColor(245, 247, 250);
@@ -200,12 +231,12 @@ export function PromoPage() {
         doc.setTextColor(100, 100, 100);
         doc.text("Firma Digitale Apposta Dalla Officina:", 25, 205);
 
-        if (finalSignature) {
+        if (sig) {
             try {
                 // Add a border for the signature
                 doc.setDrawColor(226, 232, 240);
                 doc.rect(25, 210, 80, 35);
-                doc.addImage(finalSignature, 'PNG', 25, 210, 80, 35);
+                doc.addImage(sig, 'PNG', 25, 210, 80, 35);
             } catch (e) {
                 console.warn("Could not load signature into PDF", e);
             }
@@ -220,6 +251,11 @@ export function PromoPage() {
         doc.setTextColor(150, 150, 150);
         doc.text("Documento generato automaticamente. Promo B2B - Centro Ricambi Auto Srl - L2F", 105, 275, { align: "center" });
 
+        return doc;
+    };
+
+    const generatePDF = () => {
+        const doc = getPDFDocument();
         // Download the PDF
         doc.save(`Contratto_Promo_${officinaName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
     };

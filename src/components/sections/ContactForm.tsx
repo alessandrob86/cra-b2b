@@ -29,7 +29,7 @@ export function ContactForm() {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     };
 
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZeGm6zPPQeHNhe84DuCJN-N66Ug7djkK6YjIS7aOGxSTGej5ptQoohnC7xGLDa_LH/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiYZiJoEZ4xagiDqlvN4LOhf19kFBoUsfJwF3kyBHrAxHnk4am_f-sjzQTVYijTtxf/exec';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
