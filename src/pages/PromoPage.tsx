@@ -20,7 +20,6 @@ export function PromoPage() {
     // Step 2 State (Mocked data received from backend)
     const [officinaName, setOfficinaName] = useState('');
     const [turnover, setTurnover] = useState(1500);
-    const [activationDate, setActivationDate] = useState<string | null>(null);
 
     // Step 3 State
     const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -60,7 +59,6 @@ export function PromoPage() {
             
             if (data.success) {
                 if (data.activationDate) {
-                    setActivationDate(data.activationDate);
                     setStatus('error');
                     setErrorMessage(`Spiacente, hai già attivato questa promozione in data: ${data.activationDate}`);
                     return;
