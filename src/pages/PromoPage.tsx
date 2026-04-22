@@ -43,24 +43,44 @@ export function PromoPage() {
             return;
         }
 
+        const normalizedEmail = email.toLowerCase().trim();
         setStatus('loading');
         
         try {
-            // Send as text/plain to bypass CORS preflight restrictions on Google Apps Script
+            // 1. Primary check: Supabase (Case-insensitive email check)
+            const { data: existingRecord } = await supabase
+                .from('promo_activations')
+                .select('created_at')
+                .ilike('email', normalizedEmail)
+                .maybeSingle();
+
+            if (existingRecord) {
+                const date = new Date(existingRecord.created_at).toLocaleDateString('it-IT');
+                setStatus('error');
+                setErrorMessage(`Spiacente, questa email (${normalizedEmail}) è già associata a una promozione attivata in data: ${date}`);
+                return;
+            }
+
+            // 2. Secondary check & Info fetch: Google Apps Script (Excel synchronization)
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'text/plain;charset=utf-8',
                 },
-                body: JSON.stringify({ action: 'findUser', email })
+                body: JSON.stringify({ action: 'findUser', email: normalizedEmail })
             });
 
             const data = await response.json();
+            console.log('Lookup Response:', data); // Debugging for the user
             
             if (data.success) {
-                if (data.activationDate) {
+                // Check multiple possible fields for activation status from Google Script (Cols D and E)
+                const alreadyActive = data.activationDate || data.isSigned || data.signed || data.promo || data.status === 'signed';
+                
+                if (alreadyActive) {
+                    const dateStr = typeof alreadyActive === 'string' ? alreadyActive : 'già attiva';
                     setStatus('error');
-                    setErrorMessage(`Spiacente, hai già attivato questa promozione in data: ${data.activationDate}`);
+                    setErrorMessage(`Spiacente, questa officina ha già attivato la promozione (rilevato in Excel in data: ${dateStr})`);
                     return;
                 }
                 setOfficinaName(data.officinaName);
@@ -115,11 +135,13 @@ export function PromoPage() {
 
             if (uploadError) throw uploadError;
 
+            const normalizedEmail = email.toLowerCase().trim();
+
             // 4. Save Record to Database
             const { error: dbError } = await supabase
                 .from('promo_activations')
                 .insert({
-                    email,
+                    email: normalizedEmail,
                     officina_name: officinaName,
                     turnover,
                     contract_path: fileName
@@ -134,7 +156,7 @@ export function PromoPage() {
                     headers: {
                         'Content-Type': 'text/plain;charset=utf-8',
                     },
-                    body: JSON.stringify({ action: 'signPromo', email })
+                    body: JSON.stringify({ action: 'signPromo', email: normalizedEmail })
                 });
             } catch (googleError) {
                 console.warn('Google Sheet update failed, but Supabase record is safe.', googleError);
