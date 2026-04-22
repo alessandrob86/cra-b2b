@@ -48,14 +48,13 @@ export function PromoPage() {
         
         try {
             // 1. Primary check: Supabase (Case-insensitive email check)
-            const { data: existingRecord } = await supabase
+            const { data: existingRecords } = await supabase
                 .from('promo_activations')
                 .select('created_at')
-                .ilike('email', normalizedEmail)
-                .maybeSingle();
+                .ilike('email', normalizedEmail);
 
-            if (existingRecord) {
-                const date = new Date(existingRecord.created_at).toLocaleDateString('it-IT');
+            if (existingRecords && existingRecords.length > 0) {
+                const date = new Date(existingRecords[0].created_at).toLocaleDateString('it-IT');
                 setStatus('error');
                 setErrorMessage(`Spiacente, questa email (${normalizedEmail}) è già associata a una promozione attivata in data: ${date}`);
                 return;
@@ -71,18 +70,36 @@ export function PromoPage() {
             });
 
             const data = await response.json();
-            console.log('Lookup Response:', data); // Debugging for the user
+            console.log('DEBUG - Lookup Response:', data);
             
             if (data.success) {
-                // Check multiple possible fields for activation status from Google Script (Cols D and E)
-                const alreadyActive = data.activationDate || data.isSigned || data.signed || data.promo || data.status === 'signed';
+                // Aggressive check: scan ALL fields for any sign of previous activation
+                // This covers cases where column headers might vary (e.g. "Promo", "Date", "Activation")
+                let alreadyActiveField = null;
+                let alreadyActiveValue = null;
+
+                for (const [key, value] of Object.entries(data)) {
+                    if (!value) continue;
+                    const k = key.toLowerCase();
+                    const v = String(value).toLowerCase();
+                    
+                    if (
+                        (k.includes('promo') || k.includes('date') || k.includes('signed') || k.includes('attiv')) && 
+                        v !== 'false' && v !== '0' && v !== ''
+                    ) {
+                        alreadyActiveField = key;
+                        alreadyActiveValue = value;
+                        break;
+                    }
+                }
                 
-                if (alreadyActive) {
-                    const dateStr = typeof alreadyActive === 'string' ? alreadyActive : 'già attiva';
+                if (alreadyActiveField) {
+                    console.warn(`Blocking activation: found existing record in field "${alreadyActiveField}" with value "${alreadyActiveValue}"`);
                     setStatus('error');
-                    setErrorMessage(`Spiacente, questa officina ha già attivato la promozione (rilevato in Excel in data: ${dateStr})`);
+                    setErrorMessage(`Spiacente, questa officina ha già attivato la promozione (rilevato: ${alreadyActiveValue})`);
                     return;
                 }
+
                 setOfficinaName(data.officinaName);
                 setStatus('idle');
                 setStep(2);
